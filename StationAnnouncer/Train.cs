@@ -86,5 +86,55 @@ namespace StationAnnouncer
                 }
             }
         }
+        public string generateAnnouncement()
+        {
+            if (this.expressSections.Count == 0)
+            {
+                if (this.numberOfStops == 2)
+                {
+                    return $"This train stops at {this.stopSequence[0].name} and {this.stopSequence[1].name} Only";
+                }
+                return "This train stops at all stations";
+            }
+            if (this.expressSections.Count == 1)
+            {
+                string returnString = "";
+
+                if (this.expressSections[0].stationList.Count == 1)
+                {
+                    return $"This train stops at all stations except {this.expressSections[0].stationList[0].name}";
+                }
+
+                returnString = $"This train runs express from {this.expressSections[0].StartStation.name} to {this.expressSections[0].EndStation.name}";
+                if (this.expressSections[0].hasIntermediateStation)
+                {
+                    returnString += $", stopping only at {this.expressSections[0].intermediateStation.name}";
+                }
+                return returnString;
+            }
+            if (this.expressSections.Count > 1)
+            {
+                string returnString = "This train";
+                for (int i = 0; i < this.expressSections.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        returnString += $" runs express from";
+                    }
+                    else
+                    {
+                        returnString += $" then runs express from";
+                    }
+                    returnString += $" {this.expressSections[i].StartStation.name} to {this.expressSections[i].EndStation.name}";
+                    if (this.expressSections[i].hasIntermediateStation)
+                    {
+                        returnString += $", stopping only at {this.expressSections[i].intermediateStation.name}";
+                    }
+
+                }
+                return returnString;
+            }
+            return "";
+        }
     }
 }
