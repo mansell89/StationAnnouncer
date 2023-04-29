@@ -1,52 +1,15 @@
-﻿using System.CodeDom.Compiler;
+﻿using StationAnnouncer;
+using System.CodeDom.Compiler;
 using System.Runtime.CompilerServices;
 
 internal class Program
 {   
 
-    public struct Station {
-        public string Name;
-        public bool isStopping;
-    }
-
-    public struct ExpressSection
-    {
-        public Station StartStation;
-        public Station EndStation;
-        public Station intermediateStation;
-        public bool hasIntermediateStation;
-        public List<Station> stationList;
-        public ExpressSection()
-        {
-            StartStation = new Station();
-            EndStation = new Station(); 
-            intermediateStation = new Station();
-            stationList = new List<Station>();
-            hasIntermediateStation = false;
-        }
-    }
-
-    public struct Train
-    {
-        public List<Station> stopSequence;
-        public List<ExpressSection> expressSections;
-        public int lastStoppingStationIndex;
-        public int numberOfStops;
-
-        public Train()
-        {
-            this.stopSequence = new List<Station>();
-            this.expressSections = new List<ExpressSection>();
-            this.lastStoppingStationIndex = 1;
-            this.numberOfStops = 0;
-        }
-    }
-
     private static void Main(string[] args)
     {
+        Train train = new Train();
         //get raw text from file
         string rawInput = "";
-        var train = new Train();
         try
         {
             // Open the text file using a stream reader.
@@ -70,7 +33,7 @@ internal class Program
         {
             string[] splitText = lines[i].Split(",");
             Station station = new Station();
-            station.Name = splitText[0];
+            station.name = splitText[0];
             station.isStopping = bool.Parse(splitText[1].Trim());
             train.stopSequence.Add(station);
             // go through list of stations and find the the last stop
@@ -91,7 +54,7 @@ internal class Program
     private static void findExpressSections(Train train)
     {
 
-        var currentSection = new ExpressSection();
+        ExpressSection currentSection = new ExpressSection();
         bool expressSectionStarted = false;
 
         for (int i = 0; i <= train.lastStoppingStationIndex;i++)
@@ -141,7 +104,7 @@ internal class Program
         {
             if (train.numberOfStops == 2)
             {
-                return $"This train stops at {train.stopSequence[0].Name} and {train.stopSequence[1].Name} Only";
+                return $"This train stops at {train.stopSequence[0].name} and {train.stopSequence[1].name} Only";
             }
             return "This train stops at all stations";
         }
@@ -151,13 +114,13 @@ internal class Program
 
             if (train.expressSections[0].stationList.Count == 1)
             {
-                return $"This train stops at all stations except {train.expressSections[0].stationList[0].Name}";
+                return $"This train stops at all stations except {train.expressSections[0].stationList[0].name}";
             }
 
-            returnString = $"This train runs express from {train.expressSections[0].StartStation.Name} to {train.expressSections[0].EndStation.Name}";
+            returnString = $"This train runs express from {train.expressSections[0].StartStation.name} to {train.expressSections[0].EndStation.name}";
             if (train.expressSections[0].hasIntermediateStation)
             {
-                returnString += $", stopping only at {train.expressSections[0].intermediateStation.Name}";
+                returnString += $", stopping only at {train.expressSections[0].intermediateStation.name}";
             }
             return returnString;
         }
@@ -174,10 +137,10 @@ internal class Program
                 {
                     returnString += $" then runs express from";
                 }
-                returnString += $" {train.expressSections[i].StartStation.Name} to {train.expressSections[i].EndStation.Name}";
+                returnString += $" {train.expressSections[i].StartStation.name} to {train.expressSections[i].EndStation.name}";
                 if (train.expressSections[i].hasIntermediateStation)
                 {
-                    returnString += $", stopping only at {train.expressSections[i].intermediateStation.Name}";
+                    returnString += $", stopping only at {train.expressSections[i].intermediateStation.name}";
                 }
 
             }
