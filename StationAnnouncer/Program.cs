@@ -29,60 +29,12 @@ internal class Program
         }
         //Split up csv into stations
         train.generateStopSequence(rawText);
+        train.findExpressSections();
         //get express sections
-        findExpressSections(train);
         // generate description
         // output description
     
         Console.WriteLine(generateAnnouncement(train));
-    }
-
-    private static void findExpressSections(Train train)
-    {
-
-        ExpressSection currentSection = new ExpressSection();
-        bool expressSectionStarted = false;
-
-        for (int i = 0; i <= train.lastStoppingStationIndex;i++)
-        {
-            if (!train.stopSequence[i].isStopping)
-            {
-                currentSection.stationList.Add(train.stopSequence[i]);
-                if (!expressSectionStarted)
-                {
-                    currentSection.StartStation= train.stopSequence[i-1];
-                    expressSectionStarted = true;
-                }
-            }
-            else
-            {
-                //look for intermediate station
-                if (expressSectionStarted && i < train.lastStoppingStationIndex - 1)
-                {   
-                    //if the next train is express again. this means the current station is an intermediate station
-                    if (!train.stopSequence[i+1].isStopping)
-                    {
-                        currentSection.intermediateStation= train.stopSequence[i];
-                        currentSection.hasIntermediateStation= true;
-                    }
-                    else
-                    {
-                        currentSection.EndStation = train.stopSequence[i];
-                        train.expressSections.Add(currentSection);
-                        currentSection.hasIntermediateStation = false;
-                        currentSection.stationList.Clear();
-                        expressSectionStarted = false;
-                    }
-                }
-                
-                else if (expressSectionStarted)
-                {
-                    currentSection.EndStation = train.stopSequence[i];
-                    expressSectionStarted = false;
-                    train.expressSections.Add(currentSection);
-                }
-            }
-        }
     }
     private static string generateAnnouncement(Train train)
     {
