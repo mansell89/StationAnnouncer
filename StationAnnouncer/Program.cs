@@ -9,7 +9,7 @@ internal class Program
     {
         Train train = new Train();
         //get raw text from file
-        string rawInput = "";
+        string rawText = "";
         try
         {
             // Open the text file using a stream reader.
@@ -17,8 +17,8 @@ internal class Program
             {
                 // Read the stream as a string, and write the string to the console.
                 Console.WriteLine("Raw Input");
-                rawInput = sr.ReadToEnd().Trim();
-                Console.WriteLine(rawInput);
+                rawText = sr.ReadToEnd().Trim();
+                Console.WriteLine(rawText);
                 Console.WriteLine("------------------");
             }
         }
@@ -28,21 +28,7 @@ internal class Program
             Console.WriteLine(e.Message);
         }
         //Split up csv into stations
-        string[] lines = rawInput.Split('\n');
-        for (int i = 0; i < lines.Length; i++)
-        {
-            string[] splitText = lines[i].Split(",");
-            Station station = new Station();
-            station.name = splitText[0];
-            station.isStopping = bool.Parse(splitText[1].Trim());
-            train.stopSequence.Add(station);
-            // go through list of stations and find the the last stop
-            if (station.isStopping)
-            {
-                train.lastStoppingStationIndex = i;
-                train.numberOfStops++;
-            }
-        }
+        train.generateStopSequence(rawText);
         //get express sections
         findExpressSections(train);
         // generate description
