@@ -4,33 +4,31 @@ using System.Runtime.CompilerServices;
 
 internal class Program
 {   
-
     private static void Main(string[] args)
     {
-        Train train = new Train();
-        //get raw text from file
-        string rawText = "";
+        if (args.Length == 0)
+        {
+            Console.WriteLine("Program requires full path to text file as argument");
+        return;
+        }
         try
-        {
-            // Open the text file using a stream reader.
-            using (var sr = new StreamReader("C:\\Users\\SPUD\\Documents\\Job Apps\\Queensland Rail\\Code\\Test1.txt"))
-            {
-                // Read the stream as a string, and write the string to the console.
-                Console.WriteLine("Raw Input");
-                rawText = sr.ReadToEnd().Trim();
-                Console.WriteLine(rawText);
-                Console.WriteLine("------------------");
-            }
+        {   string fileName = args[0];
+            Train train = new Train();
+            train.generateStopSequence(getTextFromFile(fileName));
+            train.findExpressSections();
+            Console.WriteLine(train.generateAnnouncement());
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            Console.WriteLine("The file could not be read:");
+            Console.WriteLine("There was an error");
             Console.WriteLine(e.Message);
-        }
-        //Split up csv into stations
-        train.generateStopSequence(rawText);
-        train.findExpressSections();
-        Console.WriteLine(train.generateAnnouncement());
+        }  
     }
-
+    private static string getTextFromFile(string fileName)
+    {
+        using (var sr = new StreamReader(fileName))
+        {
+            return sr.ReadToEnd().Trim();
+        }
+    }
 }
