@@ -57,6 +57,7 @@ namespace StationAnnouncer
             ExpressSection currentSection = new ExpressSection();
             bool expressSectionStarted = false;
 
+            //go through the stop sequence list and look for express sections
             for (int i = 0; i <= this.lastStopIndex; i++)
             {
                 if (!this.stopSequence[i].isStopping)
@@ -79,7 +80,7 @@ namespace StationAnnouncer
                             currentSection.intermediateStation = this.stopSequence[i];
                             currentSection.hasIntermediateStation = true;
                         }
-                        // else express section has finished
+                        // else the express section has finished
                         else
                         {
                             currentSection.EndStation = this.stopSequence[i];
@@ -93,7 +94,7 @@ namespace StationAnnouncer
                             expressSectionStarted = false;
                         }
                     }
-                    //captures end of list
+                    //captures end of the stop sequence
                     else if (expressSectionStarted)
                     {
                         currentSection.EndStation = this.stopSequence[i];
@@ -107,7 +108,7 @@ namespace StationAnnouncer
             }
         }
         /// <summary>
-        /// Generates a train announcement based on the expressSections list. This method creates a human-readable string describing the train's stopping pattern, considering all stations and express sections.
+        /// Generates a train announcement. This method creates a human-readable string describing the train's stopping pattern, considering all stations and express sections.
         /// </summary>
         /// <returns>A string representing the train announcement.</returns>
 
@@ -121,45 +122,31 @@ namespace StationAnnouncer
                 }
                 return "This train stops at all stations";
             }
-            if (this.expressSections.Count == 1)
+
+            if (this.expressSections[0].stationList.Count == 1)
             {
-                string returnString = "";
-
-                if (this.expressSections[0].stationList.Count == 1)
-                {
-                    return $"This train stops at all stations except {this.expressSections[0].stationList[0].name}";
-                }
-
-                returnString = $"This train runs express from {this.expressSections[0].StartStation.name} to {this.expressSections[0].EndStation.name}";
-                if (this.expressSections[0].hasIntermediateStation)
-                {
-                    returnString += $", stopping only at {this.expressSections[0].intermediateStation.name}";
-                }
-                return returnString;
+                return $"This train stops at all stations except {this.expressSections[0].stationList[0].name}";
             }
-            if (this.expressSections.Count > 1)
+
+            string returnString = "This train";
+            for (int i = 0; i < this.expressSections.Count; i++)
             {
-                string returnString = "This train";
-                for (int i = 0; i < this.expressSections.Count; i++)
+                if (i == 0)
                 {
-                    if (i == 0)
-                    {
-                        returnString += $" runs express from";
-                    }
-                    else
-                    {
-                        returnString += $" then runs express from";
-                    }
-                    returnString += $" {this.expressSections[i].StartStation.name} to {this.expressSections[i].EndStation.name}";
-                    if (this.expressSections[i].hasIntermediateStation)
-                    {
-                        returnString += $", stopping only at {this.expressSections[i].intermediateStation.name}";
-                    }
-
+                    returnString += $" runs express from";
                 }
-                return returnString;
+                else
+                {
+                    returnString += $" then runs express from";
+                }
+                returnString += $" {this.expressSections[i].StartStation.name} to {this.expressSections[i].EndStation.name}";
+                
+                if (this.expressSections[i].hasIntermediateStation)
+                {
+                    returnString += $", stopping only at {this.expressSections[i].intermediateStation.name}";
+                }
             }
-            return "";
+            return returnString;
         }
     }
 }
