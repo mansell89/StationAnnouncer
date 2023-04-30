@@ -7,45 +7,57 @@ using System.Threading.Tasks;
 
 namespace StationAnnouncer
 {
+    /// <summary>
+    /// Represents a train with a stop sequence and express sections. This class provides methods to generate the stop sequence,
+    /// identify express sections, and generate train announcements based on the stopping pattern.
+    /// </summary>
     class Train
     {
         public List<Station> stopSequence;
         public List<ExpressSection> expressSections;
-        public int lastStoppingStationIndex;
+        public int lastStopIndex;
         public int numberOfStops;
 
+        /// <summary>
+        /// Constructor for the Train class. Initializes the Train object with default values.
+        /// </summary>
         public Train()
         {
             this.stopSequence = new List<Station>();
             this.expressSections = new List<ExpressSection>();
-            this.lastStoppingStationIndex = 1;
+            this.lastStopIndex = 1;
             this.numberOfStops = 0;
         }
+        /// <summary>
+        /// Generates the stop sequence by parsing the input raw text, creating Station objects, and adding them to the stopSequence list.
+        /// </summary>
+        /// <param name="rawText">The raw text input representing the train's stop sequence.</param>
         public void generateStopSequence(string rawText)
         {
             string[] lines = rawText.Split('\n');
             for (int i = 0; i < lines.Length; i++)
             {
                 string[] splitText = lines[i].Split(",");
-                Station station = new Station();
-                station.name = splitText[0];
-                station.isStopping = bool.Parse(splitText[1].Trim());
-                this.stopSequence.Add(station);
-                // go through list of stations and find the the last stop
+                Station station = new Station(splitText[0], 
+                                              bool.Parse(splitText[1].Trim()));
+                // find last stop
                 if (station.isStopping)
                 {
-                    this.lastStoppingStationIndex = i;
+                    this.lastStopIndex = i;
                     this.numberOfStops++;
                 }
+                this.stopSequence.Add(station);
             }
         }
+        /// <summary>
+        /// Finds and creates ExpressSection objects based on the stop sequence. This method iterates through the stopSequence list and identifies sections where the train is running express.
+        /// </summary>
         public void findExpressSections()
         {
-
             ExpressSection currentSection = new ExpressSection();
             bool expressSectionStarted = false;
 
-            for (int i = 0; i <= this.lastStoppingStationIndex; i++)
+            for (int i = 0; i <= this.lastStopIndex; i++)
             {
                 if (!this.stopSequence[i].isStopping)
                 {
@@ -59,40 +71,53 @@ namespace StationAnnouncer
                 else
                 {
                     //look for intermediate station
-                    if (expressSectionStarted && i < this.lastStoppingStationIndex - 1)
+                    if (expressSectionStarted && i < this.lastStopIndex - 1)
                     {
-                        //if the next train is express again. this means the current station is an intermediate station
+                        //if the next station is express. this means the current station is an intermediate station
                         if (!this.stopSequence[i + 1].isStopping)
                         {
                             currentSection.intermediateStation = this.stopSequence[i];
                             currentSection.hasIntermediateStation = true;
                         }
+                        // else express section has finished
                         else
                         {
                             currentSection.EndStation = this.stopSequence[i];
-                            this.expressSections.Add(currentSection);
+                            this.expressSections.Add(new ExpressSection(currentSection.StartStation,
+                                currentSection.EndStation,
+                                currentSection.intermediateStation,
+                                currentSection.hasIntermediateStation,
+                                currentSection.stationList));
                             currentSection.hasIntermediateStation = false;
                             currentSection.stationList.Clear();
                             expressSectionStarted = false;
                         }
                     }
-
+                    //captures end of list
                     else if (expressSectionStarted)
                     {
                         currentSection.EndStation = this.stopSequence[i];
-                        expressSectionStarted = false;
-                        this.expressSections.Add(currentSection);
+                        this.expressSections.Add(new ExpressSection(currentSection.StartStation,
+                            currentSection.EndStation,
+                            currentSection.intermediateStation,
+                            currentSection.hasIntermediateStation,
+                            currentSection.stationList));
                     }
                 }
             }
         }
+        /// <summary>
+        /// Generates a train announcement based on the expressSections list. This method creates a human-readable string describing the train's stopping pattern, considering all stations and express sections.
+        /// </summary>
+        /// <returns>A string representing the train announcement.</returns>
+
         public string generateAnnouncement()
         {
             if (this.expressSections.Count == 0)
             {
                 if (this.numberOfStops == 2)
                 {
-                    return $"This train stops at {this.stopSequence[0].name} and {this.stopSequence[1].name} Only";
+                    return $"This train stops at {this.stopSequence[0].name} and {this.stopSequence[1].name} only";
                 }
                 return "This train stops at all stations";
             }

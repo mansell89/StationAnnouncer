@@ -6,6 +6,9 @@ internal class Program
 {   
     private static void Main(string[] args)
     {
+#if DEBUG
+        args = new[] { "C:\\Users\\SPUD\\Documents\\Job Apps\\Queensland Rail\\Code\\Test6.txt" };
+#endif
         if (args.Length == 0)
         {
             Console.WriteLine("Program requires full path to text file as argument");
